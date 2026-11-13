@@ -596,3 +596,89 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   .nav .brand-copy b{font-size:14px}
   body{padding-bottom:80px}
 }
+
+
+/* ===== v30: restrained visual polish and low-motion interaction ===== */
+:root{
+  --muted:#5f6675;
+  --r-card:16px;
+  --r-ctl:12px;
+  --shadow:0 6px 22px rgba(28,34,48,.06);
+}
+.hero-panel,.directory,.request-board,.request-card,.donor-card,.group-card,
+.stat,.cta,.request-callout,.form-section,.privacy-card{border-radius:var(--r-card)}
+.field,.btn{border-radius:var(--r-ctl)}
+
+/* Remove permanent blur layers and unnecessary looping animation. */
+.site-header,.mobile-dock{-webkit-backdrop-filter:none;backdrop-filter:none}
+.site-header{background:#fff}
+.mobile-dock{background:#fff}
+.request-card.urgent:before{animation:none;opacity:1}
+
+/* Never require an animation for mobile content to appear. */
+.reveal{transition:opacity .25s ease,transform .25s ease;transform:translateY(6px)}
+@media(max-width:650px){.reveal{opacity:1;transform:none;transition:none}}
+
+/* Scroll and touch handling. Preserve existing modal sizing on mobile. */
+.modal,.modal-card{overscroll-behavior:contain}
+.modal-card{-webkit-overflow-scrolling:touch}
+html{scroll-padding-top:80px}
+a,.btn,.blood-btn,.group-card{touch-action:manipulation}
+
+/* Homepage hierarchy and typography. */
+.hero-panel{box-shadow:var(--shadow);border-top:3px solid var(--du)}
+.stat{padding:12px 14px;box-shadow:none}
+.stat strong{font-size:22px;line-height:1.15}
+.request-callout{background:#fff;border-left:4px solid var(--red);box-shadow:none}
+@media(min-width:651px){
+  .hero{padding:36px 0 16px}
+  section{padding:24px 0}
+  .hero h1{font-size:clamp(34px,4.2vw,46px);letter-spacing:-.03em}
+  .page-intro h1{font-size:clamp(28px,3.4vw,38px)}
+  .section-head h2{font-size:22px}
+  .hero p,.page-intro p{font-size:16px;line-height:1.6}
+}
+
+/* Search selection must remain visually distinct from hover. */
+.blood-btn{background:#fff;border-color:#e8c9c9;min-height:48px;font-size:17px}
+.blood-btn.active,.blood-btn.active:hover{background:var(--red);border-color:var(--red);color:#fff;transform:none}
+.donor-card{padding:14px;align-items:start;transition:border-color .15s,box-shadow .15s}
+.donor-name{font-size:15px;line-height:1.3;overflow-wrap:anywhere}
+.donor-card .sub{font-size:12.5px;margin-top:2px}
+.chips{gap:6px;margin-top:8px}
+.chip{padding:4px 8px}
+
+/* Registration legibility and consistent desktop controls. */
+.form-group label{font-size:13px;color:#3d4454;margin-bottom:6px}
+.field::placeholder{color:#737b88}
+.field-help{font-size:12px}
+.registration-form{gap:12px}
+.form-section{box-shadow:none}
+.form-section-head{margin-bottom:6px}
+.form-section-head h2{font-size:17px}
+.consent-row{font-size:13px;line-height:1.55}
+.register-submit{width:100%;min-height:48px}
+.btn{min-height:44px}
+.field{min-height:44px}
+.link-btn{min-height:44px}
+
+/* Pointer hover should not be interpreted as a selected state on touch. */
+@media(hover:hover) and (pointer:fine){
+  .blood-btn:not(.active):hover{background:var(--red-soft);color:var(--red);transform:none}
+  .donor-card:hover{border-color:#cfc9ea;box-shadow:var(--shadow)}
+  .btn:hover{transform:none;box-shadow:none;filter:brightness(.97)}
+  .btn.primary:hover,.btn.red:hover{filter:brightness(1.06)}
+}
+@media(hover:none){
+  .btn:hover,.group-card:hover,.blood-btn:hover{transform:none;box-shadow:none}
+  .blood-btn:not(.active):hover{background:#fff;border-color:#e8c9c9;color:var(--red)}
+}
+.btn:active,.blood-btn:active{transform:scale(.98);transition-duration:.05s}
+@media(max-width:650px){
+  /* Preserve the 56px mobile header and five-button dock dimensions. */
+  .nav-actions .btn{min-height:40px}
+  .mobile-dock .dock-grid>a,.mobile-dock .dock-grid>button{min-height:52px}
+  .form-section{padding:14px}
+  .blood-btn{font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){.btn:active,.blood-btn:active{transform:none}}
