@@ -99,6 +99,7 @@ const IER = (() => {
        <div class="account-panel-actions" id="accountGuestActions">
          <button type="button" class="btn primary" id="accountSignInBtn">Sign in</button>
          <a class="btn soft" href="register.html">Create an account</a>
+         <a class="btn soft" href="faq.html">Help and FAQ</a>
        </div>
        <div class="account-panel-actions" id="accountMemberActions" hidden>
          <button type="button" class="btn" id="accountProfileBtn">Update donor information</button>

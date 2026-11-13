@@ -357,7 +357,7 @@ button:disabled{cursor:not-allowed;opacity:.58}
 .loading-list{display:grid;gap:14px;width:100%}.loading-card{height:132px;border-radius:18px;border:1px solid #e5e8f1;background:linear-gradient(90deg,#f4f5f9 25%,#fbfbfd 50%,#f4f5f9 75%);background-size:200% 100%;animation:ierLoading 1.25s ease-in-out infinite}@keyframes ierLoading{0%{background-position:200% 0}100%{background-position:-200% 0}}@media (prefers-reduced-motion:reduce){.loading-card{animation:none}}
 
 /* request status and reporting */
-.request-security-box{margin:14px 0;padding:18px;border:1px solid var(--border);border-radius:16px;background:var(--soft)}
+.request-security-box{margin:14px 0;padding:18px;border:1px solid var(--line);border-radius:16px;background:#fafafd}
 .request-security-box small{display:block;margin-top:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
 .request-security-box small:first-child{margin-top:0}
 .request-security-box b{display:block;margin-top:4px;font-size:18px}
@@ -413,7 +413,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .verify-option input:focus-visible+label,.status-choices input:focus-visible+label{outline:3px solid #7564d2;outline-offset:2px}
 
 /* v27 mobile usability update, frontend only */
-.account-button{display:none}
+.account-button{display:inline-flex;align-items:center;justify-content:center}
 .is-member-signed-in .account-button{display:inline-flex;align-items:center;justify-content:center}
 .is-member-signed-in .register-nav{display:none}
 .account-panel-card{max-width:460px}
@@ -575,4 +575,24 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   .mobile-dock .dock-grid>a,.mobile-dock .dock-grid>button{font-size:10px;padding:5px 0}
   .detail-grid{grid-template-columns:1fr}
   .blood-btn{font-size:15px}
+}
+
+/* Claude 2 findings: keep desktop Account visible and restore intermediate-width navigation. */
+@media (min-width:821px) and (max-width:960px){
+  .nav{gap:8px}
+  .nav-links{display:flex;gap:0}
+  .nav-links a{padding:8px 7px;font-size:12px}
+  .brand-copy small{display:none}
+  .brand-copy b{font-size:13px}
+  .nav-actions .btn{padding:9px 10px;font-size:12px}
+}
+
+/* At narrow tablet widths the complete desktop header does not fit; retain navigation using the dock. */
+@media (min-width:651px) and (max-width:820px){
+  .mobile-dock{display:block}
+  .nav-links{display:none}
+  .nav .brand-copy small{display:none}
+  .nav{min-height:60px}
+  .nav .brand-copy b{font-size:14px}
+  body{padding-bottom:80px}
 }
