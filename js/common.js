@@ -87,26 +87,47 @@ const IER = (() => {
     document.body.classList.toggle("is-member-signed-in",signedIn);
   }
   function openAccountPanel(){
-    if(!memberSessionToken||!currentMember){showMemberModal(()=>openAccountPanel());return}
+    // Guests must always get meaningful choices; the Account tab must not be inert.
     let overlay=document.getElementById("accountPanelModal");
     if(!overlay){
       overlay=document.createElement("div");overlay.className="modal";overlay.id="accountPanelModal";
-      overlay.setAttribute("onclick","IER.bgClose(event,'accountPanelModal')");
-      overlay.innerHTML=`<div class="modal-card account-panel-card"><div class="modal-head"><h2 style="margin:0">My account</h2><button type="button" class="close" aria-label="Close account menu" onclick="IER.closeModal('accountPanelModal')">×</button></div>
-       <div class="account-panel-identity" id="accountPanelName"></div>
-       <div class="account-panel-actions">
-       <button type="button" class="btn" id="accountProfileBtn">Update donor information</button>
-       <button type="button" class="btn" id="accountHistoryBtn">Contact access history</button>
-       <a class="btn" href="faq.html">Help and FAQ</a>
-       <button type="button" class="btn" id="accountLogoutBtn">Sign out</button>
+      overlay.addEventListener("click",event=>{if(event.target===overlay)closeModal("accountPanelModal")});
+      overlay.innerHTML=`<div class="modal-card account-panel-card" aria-labelledby="accountPanelTitle">
+       <div class="modal-head"><h2 id="accountPanelTitle">Account</h2>
+         <button type="button" class="close" aria-label="Close account menu" id="accountCloseBtn">×</button></div>
+       <div class="account-panel-identity" id="accountPanelName" aria-live="polite"></div>
+       <div class="account-panel-actions" id="accountGuestActions">
+         <button type="button" class="btn primary" id="accountSignInBtn">Sign in</button>
+         <a class="btn soft" href="register.html">Create an account</a>
+       </div>
+       <div class="account-panel-actions" id="accountMemberActions" hidden>
+         <button type="button" class="btn" id="accountProfileBtn">Update donor information</button>
+         <button type="button" class="btn" id="accountHistoryBtn">Who viewed my contact?</button>
+         <a class="btn soft" href="faq.html">Help and FAQ</a>
+         <button type="button" class="btn soft" id="accountLogoutBtn">Sign out</button>
        </div></div>`;
       document.body.appendChild(overlay);
-      overlay.querySelector("#accountProfileBtn").onclick=()=>{closeModal("accountPanelModal");openLogin()};
-      overlay.querySelector("#accountHistoryBtn").onclick=()=>{closeModal("accountPanelModal");showMyContactViews()};
-      overlay.querySelector("#accountLogoutBtn").onclick=()=>{closeModal("accountPanelModal");clearMemberSession();showToast("Signed out.")};
+      overlay.querySelector("#accountCloseBtn").addEventListener("click",()=>closeModal("accountPanelModal"));
+      overlay.querySelector("#accountSignInBtn").addEventListener("click",()=>{
+        closeModal("accountPanelModal");showMemberModal(()=>openAccountPanel())
+      });
+      overlay.querySelector("#accountProfileBtn").addEventListener("click",()=>{
+        closeModal("accountPanelModal");openLogin()
+      });
+      overlay.querySelector("#accountHistoryBtn").addEventListener("click",()=>{
+        closeModal("accountPanelModal");showMyContactViews()
+      });
+      overlay.querySelector("#accountLogoutBtn").addEventListener("click",()=>{
+        closeModal("accountPanelModal");clearMemberSession();showToast("Signed out.")
+      });
     }
-    const donor=Boolean(currentMember.donorId);
-    overlay.querySelector("#accountPanelName").textContent=currentMember.name||"Member";
+    const signedIn=Boolean(memberSessionToken&&currentMember);
+    const donor=signedIn&&Boolean(currentMember.donorId);
+    overlay.querySelector("#accountPanelName").textContent=signedIn
+      ? ((currentMember.name||"Member") + (currentMember.batch?" · Batch "+currentMember.batch:"") + (currentMember.stream?" · "+currentMember.stream:""))
+      : "Sign in or register to access protected contacts.";
+    overlay.querySelector("#accountGuestActions").hidden=signedIn;
+    overlay.querySelector("#accountMemberActions").hidden=!signedIn;
     overlay.querySelector("#accountProfileBtn").hidden=!donor;
     overlay.querySelector("#accountHistoryBtn").hidden=!donor;
     openModal("accountPanelModal");
@@ -118,47 +139,74 @@ const IER = (() => {
     // Never stack account verification behind the donor details window.
     closeModal("donorDetailModal");
     closeModal("myContactViewsModal");
+    closeModal("accountPanelModal");
     document.getElementById("memberEmailCodeSection").classList.add("hidden");
     document.getElementById("memberAuthError").textContent="";
+    const reg=document.getElementById("memberUnknownAccount");if(reg)reg.classList.add("hidden");
     setMemberAuthMode("signin");
     openModal("memberAuthModal");
   }
   function setMemberAuthMode(mode){
-    const register=mode==="register";
-    const section=document.getElementById("memberRegistrationFields");
-    if(!section)return;
-    section.classList.toggle("hidden",!register);
-    document.getElementById("memberAuthHeading").textContent=register?"Create a member account":"Sign in to view donor contact";
-    document.getElementById("memberAuthNote").textContent=register
-      ?"You do not need to become a blood donor. Register with your name, batch, stream, phone and email."
-      :"Already registered? Enter your email and we'll send a sign-in code.";
-    document.getElementById("memberAuthError").textContent="";
-    document.getElementById("memberEmailCodeSection").classList.add("hidden");
-    document.getElementById("memberSignInTab").setAttribute("aria-pressed",String(!register));
-    document.getElementById("memberRegisterTab").setAttribute("aria-pressed",String(register));
+    // Account sign-in is email-only. All new registrations use register.html.
+    if(mode==="register") {window.location.href="register.html";return;}
+    const error=document.getElementById("memberAuthError");
+    const codeSection=document.getElementById("memberEmailCodeSection");
+    const email=document.getElementById("memberEmail");
+    const send=document.getElementById("memberRequestCodeBtn");
+    document.getElementById("memberAuthHeading").textContent="Sign in";
+    error.textContent="";
+    codeSection.classList.add("hidden");
+    send.disabled=false;
+    send.textContent="Email me a code";
+    email.disabled=false;
+  }
+  function memberAuthError(message){
+    const error=document.getElementById("memberAuthError");
+    error.textContent=message||"";
+    const register=document.getElementById("memberUnknownAccount");
+    if(register)register.classList.toggle("hidden",!(/registration is required|no account|not registered|unknown account/i.test(message||"")));
   }
   async function requestMemberCode(){
-    const error=document.getElementById("memberAuthError");error.textContent="";
-    const email=document.getElementById("memberEmail").value.trim();
-    const data={email,fullName:document.getElementById("memberName").value.trim(),batch:document.getElementById("memberBatch").value.trim(),stream:document.getElementById("memberStream").value,phone:document.getElementById("memberPhone").value.trim()};
-    const button=document.getElementById("memberRequestCodeBtn");button.disabled=true;
+    const email=document.getElementById("memberEmail").value.trim().toLowerCase();
+    memberAuthError("");
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+      memberAuthError("Enter a valid email address.");return;
+    }
+    const button=document.getElementById("memberRequestCodeBtn");
+    button.disabled=true;button.textContent="Sending code...";
     try{
-      const result=await apiPost("requestMemberEmailCode",data);
-      if(!result.ok){error.textContent=result.message==="Invalid action."?"Account sign-in is not available on the connected backend yet. This development copy cannot be used with the older deployed backend.":(result.message||"Could not send code.");return}
+      // Crucial: do not send profile fields or registration:true from sign-in.
+      const result=await apiPost("requestMemberEmailCode",{email,registration:false});
+      if(!result.ok){
+        memberAuthError(result.message==="Invalid action."
+          ?"Sign-in is not available on this backend. Please contact the network team."
+          :(result.message||"Could not send the code. Try again."));
+        return;
+      }
       document.getElementById("memberEmailCodeSection").classList.remove("hidden");
-
-    }catch(e){error.textContent="Could not connect to the server."}finally{button.disabled=false}
+      document.getElementById("memberCode").value="";
+      document.getElementById("memberCode").focus();
+      document.getElementById("memberCodeStatus").textContent="Code sent. Check your inbox.";
+      button.textContent="Resend code";
+    }catch(e){memberAuthError("Unable to send code. Check your connection and try again.");}
+    finally{button.disabled=false;if(button.textContent==="Sending code...")button.textContent="Email me a code";}
   }
   async function confirmMemberCode(){
-    const error=document.getElementById("memberAuthError");error.textContent="";
-    const button=document.getElementById("memberConfirmCodeBtn");button.disabled=true;
+    const email=document.getElementById("memberEmail").value.trim().toLowerCase();
+    const code=document.getElementById("memberCode").value.trim();
+    memberAuthError("");
+    if(!/^\d{6}$/.test(code)){memberAuthError("Enter the six-digit code.");return;}
+    const button=document.getElementById("memberConfirmCodeBtn");
+    button.disabled=true;button.textContent="Verifying...";
     try{
-      const result=await apiPost("confirmMemberEmailCode",{email:document.getElementById("memberEmail").value.trim(),code:document.getElementById("memberCode").value.trim()});
-      if(!result.ok){error.textContent=result.message||"Could not verify.";return}
-      memberSessionToken=result.sessionToken;currentMember=result.member;saveMemberSession();
-      closeModal("memberAuthModal");showToast("Signed in as "+result.member.name);
-      if(memberContactAfterLogin){const fn=memberContactAfterLogin;memberContactAfterLogin=null;fn()}
-    }catch(e){error.textContent="Could not verify your account."}finally{button.disabled=false}
+      const result=await apiPost("confirmMemberEmailCode",{email,code});
+      if(!result.ok){memberAuthError(result.message||"Could not verify code.");return;}
+      if(!acceptVerifiedMember(result)){memberAuthError("The server did not return a valid session. Try signing in again.");return;}
+      closeModal("memberAuthModal");
+      showToast("Signed in as "+(currentMember.name||"member"));
+      if(memberContactAfterLogin){const fn=memberContactAfterLogin;memberContactAfterLogin=null;fn();}
+    }catch(e){memberAuthError("Unable to verify the code. Try again.");}
+    finally{button.disabled=false;button.textContent="Verify and continue";}
   }
   async function showMyContactViews(){
     if(!memberSessionToken){showMemberModal(()=>showMyContactViews());return}
@@ -536,20 +584,13 @@ Please describe the issue below:
     if(document.getElementById("loginModal")) return;
     document.body.insertAdjacentHTML("beforeend", `
       <div class="modal" id="memberAuthModal" onclick="IER.bgClose(event,'memberAuthModal')"><div class="modal-card" style="max-width:510px">
-        <div class="modal-head"><div><h2 id="memberAuthHeading">Sign in to view donor contact</h2><p class="sub">Email verification protects donor contact details</p></div><button class="close" onclick="IER.closeModal('memberAuthModal')">×</button></div>
-        <div class="member-auth-tabs" role="group" aria-label="Member account options"><button type="button" id="memberSignInTab" aria-pressed="true" onclick="IER.setMemberAuthMode('signin')">Sign in</button><button type="button" id="memberRegisterTab" aria-pressed="false" onclick="IER.setMemberAuthMode('register')">Create account</button></div>
-        <p id="memberAuthNote" class="note"></p>
-        <div class="form-group"><label for="memberEmail">Email address</label><input class="field" id="memberEmail" type="email" placeholder="name@example.com" autocomplete="email"></div>
-        <div id="memberRegistrationFields" class="hidden">
-          <div class="form-group"><label for="memberName">Full name</label><input class="field" id="memberName" maxlength="100"></div>
-          <div class="form-group"><label for="memberBatch">Batch</label><input class="field" id="memberBatch" maxlength="3" inputmode="numeric"></div>
-          <div class="form-group"><label for="memberStream">Stream</label><select class="field" id="memberStream"><option value="">Select</option>${STREAMS.map(x=>`<option value="${escapeAttr(x)}">${escapeHtml(x)}</option>`).join("")}</select></div>
-          <div class="form-group"><label for="memberPhone">Phone</label><input class="field" id="memberPhone" placeholder="01XXXXXXXXX" inputmode="tel"></div>
-        </div>
-        <p class="note">By requesting contact details, you agree that the donor can privately view your name, batch, stream, contact method and access time.</p>
-        <button class="btn primary full" id="memberRequestCodeBtn" onclick="IER.requestMemberCode()">Email me a code</button>
-        <div id="memberEmailCodeSection" class="hidden"><div class="form-group"><label>6-digit email code</label><input id="memberCode" class="field" inputmode="numeric" maxlength="6"></div><button class="btn primary full" id="memberConfirmCodeBtn" onclick="IER.confirmMemberCode()">Verify and continue</button></div>
-        <div class="err" id="memberAuthError"></div>
+        <div class="modal-head"><h2 id="memberAuthHeading">Sign in</h2><button type="button" class="close" aria-label="Close sign-in" onclick="IER.closeModal('memberAuthModal')">×</button></div>
+        <div class="form-group"><label for="memberEmail">Email address</label><input class="field" id="memberEmail" type="email" placeholder="name@example.com" autocomplete="email" inputmode="email"></div>
+        <button type="button" class="btn primary full" id="memberRequestCodeBtn" onclick="IER.requestMemberCode()">Email me a code</button>
+        <div id="memberEmailCodeSection" class="hidden" aria-live="polite"><p class="member-code-status" id="memberCodeStatus" role="status"></p><div class="form-group"><label for="memberCode">Six-digit email code</label><input id="memberCode" class="field" type="text" inputmode="numeric" pattern="[0-9]{6}" autocomplete="one-time-code" maxlength="6" placeholder="000000"></div><button type="button" class="btn primary full" id="memberConfirmCodeBtn" onclick="IER.confirmMemberCode()">Verify and continue</button></div>
+        <div class="err" id="memberAuthError" role="alert"></div>
+        <div id="memberUnknownAccount" class="member-registration-prompt hidden"><a class="btn soft full" href="register.html">Create an account</a></div>
+        <p class="member-register-link">New to the network? <a href="register.html">Register as a member or donor</a></p>
       </div></div>
       <div class="modal" id="myContactViewsModal" onclick="IER.bgClose(event,'myContactViewsModal')"><div class="modal-card"><div class="modal-head"><h2>Who viewed my contact?</h2><button class="close" onclick="IER.closeModal('myContactViewsModal')">×</button></div><div id="myContactViewsList"></div></div></div>
       <div class="modal" id="donorDetailModal" onclick="IER.bgClose(event,'donorDetailModal')">
@@ -650,6 +691,9 @@ Please describe the issue below:
       </div>
     `);
 
+    document.getElementById("memberEmail").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();requestMemberCode();}});
+    document.getElementById("memberCode").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();confirmMemberCode();}});
+    document.getElementById("memberEmail").addEventListener("input",()=>{memberAuthError("");document.getElementById("memberEmailCodeSection").classList.add("hidden");});
     document.querySelectorAll('input[name="verifyMode"]').forEach(x=>x.addEventListener("change",()=>{
       const byEmail=document.getElementById("verifyEmail").checked;
       document.getElementById("identifierLabel").textContent=byEmail?"Registered email":"IER ID";

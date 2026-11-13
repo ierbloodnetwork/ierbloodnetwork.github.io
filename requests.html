@@ -46,11 +46,13 @@
     </div>
   </div>
 </footer>
-<div class="mobile-dock"><div class="dock-grid">
-  <a href="index.html">Home</a><a href="donors.html">Find donors</a>
-  <a class="dock-request" href="requests.html#open">Request blood</a>
-  <button type="button" onclick="IER.openAccountPanel()">Account</button>
-</div></div>
+<div class="mobile-dock" aria-label="Mobile navigation"><nav class="dock-grid" aria-label="Main navigation">
+  <a href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10h-6v-6H9v6H3z"/></svg><span>Home</span></a>
+  <a href="donors.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s-7 8-7 12a7 7 0 0 0 14 0c0-4-7-12-7-12Z"/></svg><span>Donors</span></a>
+  <a class="dock-request" href="requests.html#open"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Request blood</span></a>
+  <a href="requests.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg><span>Requests</span></a>
+  <button type="button" class="dock-account" onclick="IER.openAccountPanel()"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-5 3.5-8 8-8s8 3 8 8"/></svg><span>Account</span></button>
+</nav></div>
 <div class="toast" id="globalToast"></div>
 
 
