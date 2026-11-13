@@ -411,3 +411,30 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .verify-option,.status-choices>div{position:relative}
 .verify-option input,.status-choices input{display:block;position:absolute;opacity:0;width:1px;height:1px}
 .verify-option input:focus-visible+label,.status-choices input:focus-visible+label{outline:3px solid #7564d2;outline-offset:2px}
+
+/* v27 mobile usability update, frontend only */
+.account-button{display:none}
+.is-member-signed-in .account-button{display:inline-flex;align-items:center;justify-content:center}
+.is-member-signed-in .register-nav{display:none}
+.account-panel-card{max-width:460px}
+.account-panel-identity{color:var(--muted);margin:0 0 16px}
+.account-panel-actions{display:grid;gap:10px}
+.account-panel-actions .btn{text-align:left;min-height:48px;display:flex;align-items:center}
+.account-panel-actions [hidden]{display:none!important}
+.mobile-dock .dock-request{color:var(--red-dark);font-weight:950}
+.mobile-dock button{min-height:44px}
+@media(max-width:650px){
+  .nav{min-height:66px;gap:8px}
+  .logo{width:40px;height:40px;flex:none}
+  .brand-copy b{font-size:14px;line-height:1.2;max-width:182px}
+  .nav-actions{gap:6px;flex:none}
+  .nav-actions .btn{padding:10px 11px;font-size:13px;white-space:nowrap}
+  .hero{padding-top:22px}
+  .hero h1{font-size:clamp(31px,8vw,38px);margin:12px 0}
+  .hero p{font-size:15px;line-height:1.5}
+  .hero-grid{gap:20px}
+  .hero-panel{order:-1;padding:17px}
+  .hero-panel h2{font-size:20px}
+  .eyebrow{font-size:10px}
+  .mobile-dock a,.mobile-dock button{min-height:46px;font-size:12px;padding:9px 5px}
+}

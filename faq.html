@@ -11,7 +11,10 @@
   <div class="wrap nav">
     <a class="brand" href="index.html"><div class="logo">IER</div><div class="brand-copy"><b>IER Blood Donor Network</b><small>Institute of Education and Research · University of Dhaka</small></div></a>
     <div class="nav-links"><a href="index.html">Home</a><a href="donors.html">Find Donors</a><a href="requests.html">Blood Requests</a><a class="active" href="faq.html">FAQ</a></div>
-    <div class="nav-actions"><button class="btn update-nav" onclick="IER.openLogin()">Update info</button><a class="btn primary" href="register.html">Register</a></div>
+    <div class="nav-actions">
+      <button class="btn account-button" type="button" onclick="IER.openAccountPanel()">Account</button>
+      <a class="btn primary register-nav" href="register.html">Register</a>
+    </div>
   </div>
 </header>
 <main>
@@ -23,7 +26,11 @@
   </div></section>
 </main>
 <footer><div class="wrap footer-row"><span>IER Blood Donor Network · Community initiative</span><div class="support-links"><a href="faq.html">FAQ</a><a href="#" onclick="IER.reportProblem();return false;">Report a problem</a><a href="#" onclick="IER.sendFeedback();return false;">Feedback</a></div></div></footer>
-<div class="mobile-dock"><div class="dock-grid"><a href="index.html">Home</a><a href="donors.html">Donors</a><a href="requests.html">Requests</a><a href="faq.html">FAQ</a></div></div>
+<div class="mobile-dock"><div class="dock-grid">
+  <a href="index.html">Home</a><a href="donors.html">Find donors</a>
+  <a class="dock-request" href="requests.html#open">Request blood</a>
+  <button type="button" onclick="IER.openAccountPanel()">Account</button>
+</div></div>
 <div class="toast" id="globalToast"></div>
 <script src="js/config.js"></script><script src="js/common.js"></script><script src="js/faq.js"></script>
 </body></html>

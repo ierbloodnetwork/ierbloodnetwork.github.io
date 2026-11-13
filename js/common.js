@@ -74,12 +74,42 @@ const IER = (() => {
       memberSessionToken=saved.token;currentMember=saved.member||null;
     }
   }catch(ignored){}
-  function saveMemberSession(){try{sessionStorage.setItem("ier_member_session",JSON.stringify({token:memberSessionToken,member:currentMember}));}catch(ignored){}}
-  function clearMemberSession(){memberSessionToken="";currentMember=null;try{sessionStorage.removeItem("ier_member_session")}catch(ignored){}}
+  function saveMemberSession(){try{sessionStorage.setItem("ier_member_session",JSON.stringify({token:memberSessionToken,member:currentMember}));}catch(ignored){}updateAccountUI();}
+  function clearMemberSession(){memberSessionToken="";currentMember=null;try{sessionStorage.removeItem("ier_member_session")}catch(ignored){}updateAccountUI();}
   function handleMemberAuthFailure(result,retry){
     if(result && !result.ok && /sign in|session|expired|not authenticated/i.test(result.message||"")){
       clearMemberSession();showMemberModal(retry);return true;
     }return false;
+  }
+  function updateAccountUI(){
+    if(!document.body)return;
+    const signedIn=Boolean(memberSessionToken&&currentMember);
+    document.body.classList.toggle("is-member-signed-in",signedIn);
+  }
+  function openAccountPanel(){
+    if(!memberSessionToken||!currentMember){showMemberModal(()=>openAccountPanel());return}
+    let overlay=document.getElementById("accountPanelModal");
+    if(!overlay){
+      overlay=document.createElement("div");overlay.className="modal";overlay.id="accountPanelModal";
+      overlay.setAttribute("onclick","IER.bgClose(event,'accountPanelModal')");
+      overlay.innerHTML=`<div class="modal-card account-panel-card"><div class="modal-head"><h2 style="margin:0">My account</h2><button type="button" class="close" aria-label="Close account menu" onclick="IER.closeModal('accountPanelModal')">×</button></div>
+       <div class="account-panel-identity" id="accountPanelName"></div>
+       <div class="account-panel-actions">
+       <button type="button" class="btn" id="accountProfileBtn">Update donor information</button>
+       <button type="button" class="btn" id="accountHistoryBtn">Contact access history</button>
+       <a class="btn" href="faq.html">Help and FAQ</a>
+       <button type="button" class="btn" id="accountLogoutBtn">Sign out</button>
+       </div></div>`;
+      document.body.appendChild(overlay);
+      overlay.querySelector("#accountProfileBtn").onclick=()=>{closeModal("accountPanelModal");openLogin()};
+      overlay.querySelector("#accountHistoryBtn").onclick=()=>{closeModal("accountPanelModal");showMyContactViews()};
+      overlay.querySelector("#accountLogoutBtn").onclick=()=>{closeModal("accountPanelModal");clearMemberSession();showToast("Signed out.")};
+    }
+    const donor=Boolean(currentMember.donorId);
+    overlay.querySelector("#accountPanelName").textContent=currentMember.name||"Member";
+    overlay.querySelector("#accountProfileBtn").hidden=!donor;
+    overlay.querySelector("#accountHistoryBtn").hidden=!donor;
+    openModal("accountPanelModal");
   }
   let memberContactAfterLogin=null;
   function showMemberModal(onSuccess){
@@ -226,7 +256,7 @@ const IER = (() => {
       if(!base){reject(new Error("API is not configured."));return}
       const cb="ierJsonp_"+Date.now()+"_"+Math.random().toString(36).slice(2);
       const script=document.createElement("script");
-      const timer=setTimeout(()=>{cleanup();reject(new Error("Live data request timed out."));},10000);
+      const timer=setTimeout(()=>{cleanup();reject(new Error("Live data request timed out."));},8000);
       function cleanup(){clearTimeout(timer);delete window[cb];script.remove();}
       window[cb]=(data)=>{cleanup();resolve(data)};
       script.onerror=()=>{cleanup();reject(new Error("Could not load live data."));};
@@ -234,10 +264,10 @@ const IER = (() => {
       document.head.appendChild(script);
     });
   }
-  async function fetchPublic(action){
-    for(let attempt=0;attempt<3;attempt++){
+  async function fetchPublic(action,attempts=1){
+    for(let attempt=0;attempt<attempts;attempt++){
       try{return await jsonpGet(action)}catch(error){
-        if(attempt===2)throw error;
+        if(attempt===attempts-1)throw error;
         await new Promise(resolve=>setTimeout(resolve,350*Math.pow(2,attempt)+Math.random()*300));
       }
     }
@@ -875,12 +905,13 @@ Please describe the issue below:
     donors:()=>donors,requests:()=>requests,realDonors:()=>realDonors,realRequests:()=>realRequests,useDemoDonors,useDemoRequests,realOpenRequestCount,reloadPublicData,publicState:()=>publicState,apiPost,
     persist,resetDemo,addDonor,findDuplicateDonor,batchLabel,isValidPhone,isConfirmed,effectiveAvailability,availabilitySource,communityExpiryText,freshnessText,locationText,donationText,
     requestStatus,requestFulfilmentReasonLabel,formatDateTime,timeAgo,countdown,normPhone,communityReasonLabel,friendlyDateTime,showToast,openModal,closeModal,bgClose,shareText,copyText,copyCurrentUrl,setupReveal,animateNumber,query,navigateDonors,
-    reportProblem,sendFeedback,reportDonorInfo,reportBloodRequest,escapeHtml,escapeAttr,safeFacebookUrl,turnstileEnabled,initTurnstile,getTurnstileToken,resetTurnstile,injectSharedModals,openLogin,verifyDonor,saveDonor,openDonorDetail,revealDonorContact,showMemberModal,setMemberAuthMode,requestMemberCode,confirmMemberCode,acceptVerifiedMember,showMyContactViews,openCommunityVerify,saveCommunityAvailability,reportTrustedMemberFulfilment,getVerifiedRequesterContact
+    reportProblem,sendFeedback,reportDonorInfo,reportBloodRequest,escapeHtml,escapeAttr,safeFacebookUrl,turnstileEnabled,initTurnstile,getTurnstileToken,resetTurnstile,injectSharedModals,openLogin,verifyDonor,saveDonor,openDonorDetail,revealDonorContact,showMemberModal,setMemberAuthMode,requestMemberCode,confirmMemberCode,acceptVerifiedMember,showMyContactViews,openAccountPanel,openCommunityVerify,saveCommunityAvailability,reportTrustedMemberFulfilment,getVerifiedRequesterContact
   };
 })();
 
 document.addEventListener("DOMContentLoaded",()=>{
   IER.injectSharedModals();
+  document.body.classList.toggle("is-member-signed-in",Boolean(sessionStorage.getItem("ier_member_session")));
   IER.setupReveal();
   IER.reloadPublicData();
 });

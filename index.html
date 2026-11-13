@@ -13,9 +13,9 @@
       <a class="" href="requests.html">Blood Requests</a>
       <a class="" href="faq.html">FAQ</a>
     </div>
-    <div class="nav-actions"><button class="btn" onclick="IER.showMyContactViews()">My contact views</button>
-      <button class="btn update-nav" onclick="IER.openLogin()">Update info</button>
-      <a class="btn primary" href="register.html">Register</a>
+    <div class="nav-actions">
+      <button class="btn account-button" type="button" onclick="IER.openAccountPanel()">Account</button>
+      <a class="btn primary register-nav" href="register.html">Register</a>
     </div>
   </div>
 </header>
@@ -77,7 +77,9 @@
   </div>
 </footer>
 <div class="mobile-dock"><div class="dock-grid">
-  <a href="index.html">Home</a><a href="donors.html">Donors</a><a href="requests.html">Requests</a><a href="faq.html">FAQ</a>
+  <a href="index.html">Home</a><a href="donors.html">Find donors</a>
+  <a class="dock-request" href="requests.html#open">Request blood</a>
+  <button type="button" onclick="IER.openAccountPanel()">Account</button>
 </div></div>
 <div class="toast" id="globalToast"></div>
 
