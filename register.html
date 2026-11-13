@@ -1,0 +1,86 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="css/style.css">
+<title>Register · IER Blood Donor Network</title></head><body>
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="index.html"><div class="logo">IER</div><div class="brand-copy"><b>IER Blood Donor Network</b><small>Institute of Education and Research · University of Dhaka</small></div></a>
+    <div class="nav-links">
+      <a href="index.html">Home</a><a href="donors.html">Find Donors</a><a href="requests.html">Blood Requests</a><a href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-actions"><button class="btn update-nav" onclick="IER.openLogin()">Update info</button><a class="btn primary" href="register.html">Register</a></div>
+  </div>
+</header>
+<main>
+  <div class="page-intro"><div class="wrap reveal"><span class="eyebrow">Registration</span><h1>Join IER Blood Donor Network</h1></div></div>
+  <section style="padding-top:8px"><div class="wrap register-layout unified-layout">
+    <form class="registration-form reveal" id="registrationForm" novalidate>
+      <div class="form-section">
+        <div class="form-section-head"><span>1</span><div><h2>Basic information</h2></div></div>
+        <div class="form-grid">
+          <div class="form-group"><label for="regName">Full name *</label><input class="field" id="regName" autocomplete="name" placeholder="Enter full name"></div>
+          <div class="form-group donor-only hidden"><label for="regIerId">IER ID</label><input class="field" id="regIerId" placeholder="Enter IER ID, if remembered"></div>
+          <div class="form-group"><label for="regBatch">IER batch number *</label><input class="field" id="regBatch" inputmode="numeric" placeholder="Enter batch number"></div>
+          <div class="form-group"><label for="regStream">Stream *</label><select class="field" id="regStream"><option value="">Select stream</option></select></div>
+          <div class="form-group"><label for="regBlood">Blood group *</label><select class="field" id="regBlood"><option value="">Select blood group</option></select></div>
+        </div>
+        <div class="form-group" style="margin-top:18px"><label for="regDonorChoice">Register as a blood donor?</label><select class="field" id="regDonorChoice"><option value="no">Not now, member only</option><option value="yes">Yes, I want to donate</option></select></div>
+      </div>
+
+      <div class="form-section donor-only hidden">
+        <div class="form-section-head"><span>2</span><div><h2>Donation and availability</h2></div></div>
+        <div class="form-grid">
+          <div class="form-group"><label for="regDonated">Have you donated blood before? *</label><select class="field" id="regDonated"><option value="">Select an option</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+          <div class="form-group hidden" id="regLastWrap"><label for="regLast">Last donation date *</label><input class="field" type="date" id="regLast"></div>
+          <div class="form-group"><label for="regAvailability">Current availability *</label><select class="field" id="regAvailability"><option value="">Select availability</option><option>Available</option><option>Emergency only</option><option>Temporarily unavailable</option></select></div>
+        </div>
+      </div>
+
+      <div class="form-section donor-only hidden">
+        <div class="form-section-head"><span>3</span><div><h2>Current location</h2></div></div>
+        <div class="form-grid">
+          <div class="form-group"><label for="regDhakaCity">Are you currently in Dhaka District? *</label><select class="field" id="regDhakaCity"><option value="">Select an option</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+          <div class="form-group hidden" id="regDhakaAreaWrap"><label for="regDhakaArea">Current area in Dhaka District *</label><select class="field" id="regDhakaArea"><option value="">Select current area</option></select></div>
+          <div class="form-group hidden" id="regOtherDhakaWrap"><label for="regOtherDhaka">Specify your area *</label><input class="field" id="regOtherDhaka" placeholder="Enter current area"></div>
+          <div class="form-group hidden" id="regDistrictWrap"><label for="regDistrict">Current district *</label><select class="field" id="regDistrict"><option value="">Select district</option></select></div>
+          <div class="form-group hidden" id="regOutsideAreaWrap"><label for="regOutsideArea">Current area / location</label><input class="field" id="regOutsideArea" placeholder="Enter current area, town or locality (optional)"></div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-head"><span>4</span><div><h2>Contact and privacy</h2></div></div>
+        <div class="form-grid">
+          <div class="form-group"><label for="regPhone" id="regPhoneLabel">Phone number *</label><input class="field" id="regPhone" inputmode="tel" autocomplete="tel" placeholder="01XXXXXXXXX"></div>
+          <div class="form-group"><label for="regEmail">Email address *</label><input class="field" id="regEmail" type="email" autocomplete="email" placeholder="name@example.com"></div>
+          <div class="form-group donor-only hidden"><label for="regRoute">How would you like people to contact you? *</label><select class="field" id="regRoute"><option value="">Select contact method</option><option value="direct">Phone / WhatsApp</option><option value="facebook">Facebook</option><option value="both">Both</option></select></div>
+          <div class="form-group donor-only hidden" id="regFacebookWrap"><label for="regFacebook" id="regFacebookLabel">Facebook profile link</label><input class="field" id="regFacebook" inputmode="url" placeholder="https://facebook.com/username"></div>
+          <div class="form-group donor-only hidden"><label for="regAlerts">Receive email alerts for matching blood requests? *</label><select class="field" id="regAlerts"><option value="">Select an option</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+        </div>
+      </div>
+
+      <div class="form-section consent-section donor-only hidden">
+        <label class="consent-row"><input type="checkbox" id="regConsent"><span>I agree to list my donor information in the donor directory. My phone and Facebook link are available only to signed-in members, and contact access is logged.</span></label>
+      </div>
+      <div class="turnstile-slot hidden" id="registerTurnstile"></div>
+      <div class="err registration-error" id="registrationError"></div>
+      <button class="btn primary register-submit" id="registerSubmitBtn" type="submit">Continue to email verification</button><div class="submit-status" id="registrationStatus" aria-live="polite"></div><div id="regVerification" class="form-section hidden" style="margin-top:20px"><div class="form-group"><label for="regCode">Email verification code</label><input class="field" id="regCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6-digit code"></div><button class="btn primary register-submit" id="regVerifyBtn" type="button" style="margin-top:12px">Verify and complete registration</button></div>
+    </form>
+
+    <aside class="register-aside reveal hidden">
+      <div class="privacy-card"><h3>What will be public?</h3><ul><li>Name, batch, stream and blood group</li><li>General location and availability</li><li>Donation history</li><li>Your selected public contact route</li></ul></div>
+      <div class="privacy-card"><h3>What stays private?</h3><ul><li>IER ID</li><li>Email address</li><li>Phone number when Facebook is selected and you do not choose Both</li></ul></div>
+      <div class="privacy-card subtle"><h3>Already registered?</h3><p>Use Update info instead of registering again.</p><button class="btn soft full" type="button" onclick="IER.openLogin()">Update my information</button></div>
+    </aside>
+  </section></div>
+
+  <div class="modal" id="registrationSuccessModal" onclick="IER.bgClose(event,'registrationSuccessModal')"><div class="modal-card" style="max-width:500px">
+    <div class="success-mark">✓</div><h2 style="text-align:center;margin:10px 0 6px">Registration successful</h2><p class="success-copy">Your account is ready.</p>
+    <div class="success-actions"><a class="btn primary" href="donors.html">View donors</a><a class="btn" href="index.html">Back to home</a></div>
+  </div></div>
+</main>
+<footer><div class="wrap footer-row"><span>IER Blood Donor Network · Community initiative</span><div class="support-links"><a href="faq.html">FAQ</a><a href="#" onclick="IER.reportProblem();return false;">Report a problem</a><a href="#" onclick="IER.sendFeedback();return false;">Feedback</a></div></div></footer>
+<div class="mobile-dock"><div class="dock-grid"><a href="index.html">Home</a><a href="donors.html">Donors</a><a href="requests.html">Requests</a><a href="faq.html">FAQ</a></div></div>
+<div class="toast" id="globalToast"></div>
+<script src="js/config.js"></script><script src="js/common.js"></script><script src="js/register.js"></script>
+</body></html>

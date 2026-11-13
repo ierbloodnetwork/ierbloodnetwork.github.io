@@ -1,0 +1,140 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="css/style.css">
+<title>Blood Requests · IER Blood Donor Network</title></head><body>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="index.html"><div class="logo">IER</div><div class="brand-copy"><b>IER Blood Donor Network</b><small>Institute of Education and Research · University of Dhaka</small></div></a>
+    <div class="nav-links">
+      <a class="" href="index.html">Home</a>
+      <a class="" href="donors.html">Find Donors</a>
+      <a class="active" href="requests.html">Blood Requests</a>
+      <a class="" href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn update-nav" onclick="IER.openLogin()">Update info</button>
+      <a class="btn primary" href="register.html">Register</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="page-intro"><div class="wrap reveal"><span class="eyebrow">Live request board</span><h1>Active blood requests</h1><p>View current requests, post a new request, or share one with others.</p><div class="page-actions"><button class="btn red" id="openRequestBtn">Open Blood Request</button></div></div></div>
+  <section style="padding-top:8px"><div class="wrap">
+    <div class="request-board reveal">
+      <div class="filters secondary" style="margin-top:0">
+        <select class="field" id="requestBloodFilter"></select>
+        <select class="field" id="requestStatusFilter"><option>Open</option><option value="">All statuses</option><option>Fulfilment Reported</option><option>Expired</option></select>
+        <select class="field" id="requestUrgencyFilter"><option value="">Any urgency</option><option value="yes">Urgent only</option><option value="no">Non-urgent only</option></select>
+        <button class="btn soft" onclick="IER.copyCurrentUrl()">Copy board link</button>
+      </div>
+      <div class="directory-meta"><b id="requestCount"></b><span>Open requests are shown first.</span></div>
+      <div class="request-grid" id="requestGrid"></div>
+    </div>
+  </div></section>
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <span>IER Blood Donor Network · Community initiative</span>
+    <div class="support-links">
+      <a href="faq.html">FAQ</a>
+      <a href="#" onclick="IER.reportProblem();return false;">Report a problem</a>
+      <a href="#" onclick="IER.sendFeedback();return false;">Feedback</a>
+    </div>
+  </div>
+</footer>
+<div class="mobile-dock"><div class="dock-grid">
+  <a href="index.html">Home</a><a href="donors.html">Donors</a><a href="requests.html">Requests</a><a href="faq.html">FAQ</a>
+</div></div>
+<div class="toast" id="globalToast"></div>
+
+
+<div class="modal" id="requestCreateModal" onclick="IER.bgClose(event,'requestCreateModal')"><div class="modal-card">
+  <div class="modal-head"><div><h2 style="margin:0">Open a Blood Request</h2><div class="sub">Provide the request details below.</div></div><button class="close" onclick="IER.closeModal('requestCreateModal')">×</button></div>
+  <div class="form-grid">
+    <div class="form-group"><label>Blood group needed</label><select class="field" id="rBlood"></select></div>
+    <div class="form-group"><label>Units needed, optional</label><input class="field" id="rUnits" type="number" min="1"></div>
+    <div class="form-group"><label>Hospital / location</label><input class="field" id="rHospital" placeholder="Enter hospital or location" maxlength="160"></div>
+    <div class="form-group"><label>District</label><select class="field" id="rDistrict"><option value="">Select district</option></select></div>
+    <div class="form-group" id="rDhakaAreaWrap" hidden><label for="rDhakaArea">Area / locality, optional</label><select class="field" id="rDhakaArea"><option value="">Select area (optional)</option></select></div>
+    <div class="form-group" id="rOtherAreaWrap" hidden><label for="rOtherArea">Area / locality, optional</label><input class="field" id="rOtherArea" placeholder="Enter area or locality (optional)" maxlength="120"></div>
+    <div class="form-group"><label for="rNeededDate">Needed by: date (Bangladesh time)</label><input class="field" id="rNeededDate" type="date"></div>
+    <div class="form-group"><label for="rNeededHour">Needed by: time (Bangladesh time)</label><div class="request-time-row"><select class="field" id="rNeededHour" aria-label="Hour"></select><span aria-hidden="true">:</span><select class="field" id="rNeededMinute" aria-label="Minute"></select><select class="field" id="rNeededPeriod" aria-label="AM or PM"><option>AM</option><option>PM</option></select></div></div>
+    <div class="form-group"><label>Requester name</label><input class="field" id="rName" maxlength="80"></div>
+    <div class="form-group"><label>Requester IER batch</label><input class="field" id="rBatch" placeholder="Enter batch number" maxlength="3" inputmode="numeric"></div>
+    <div class="form-group"><label>Requester phone number</label><input class="field" id="rPhone" placeholder="01XXXXXXXXX" inputmode="tel"></div>
+    <div class="form-group"><label>Requester email (optional)</label><input class="field" id="rEmail" type="email" autocomplete="email" placeholder="name@example.com"><small class="field-help">If you include an email, you can securely confirm or reject a fulfilment report. No email is needed to post a request.</small></div>
+    <div class="form-group" style="grid-column:1/-1"><label class="check-row"><input type="checkbox" id="rSharePhonePoster"> Allow my phone number to appear on shared blood-request posters</label></div>
+    <div class="form-group"><label>Urgency</label><select class="field" id="rUrgent"><option value="yes">Urgent</option><option value="no">Not urgent</option></select></div>
+  </div>
+  <div class="form-group"><label>Short note, optional</label><textarea class="field" id="rNote" maxlength="600"></textarea></div>
+  <div class="turnstile-slot hidden" id="requestTurnstile"></div>
+  <button class="btn red full" style="margin-top:13px" onclick="submitBloodRequest()">Publish Request</button><div class="err" id="requestError"></div>
+</div></div>
+
+<div class="modal" id="requestDetailModal" onclick="IER.bgClose(event,'requestDetailModal')"><div class="modal-card">
+  <div class="modal-head"><div><h2 style="margin:0" id="rdTitle"></h2><div class="sub" id="rdSub"></div></div><button class="close" onclick="IER.closeModal('requestDetailModal')">×</button></div>
+  <div class="detail-grid" id="rdDetails"></div>
+  <div class="contact"><b>Requester contact</b><div class="contact-actions" id="rdContact"></div></div>
+  <div style="margin:12px 0"><button class="link-btn" id="rdReportRequest">Report this blood request</button></div>
+  <div class="share-panel">
+    <h3>Share this blood request</h3>
+    <label class="check-row"><input type="checkbox" id="shareIncludePhone"> Show requester phone on shared post and image (only if requester allowed it)</label>
+    <div class="share-post" id="sharePostText"></div>
+    <div class="share-actions">
+      <button class="btn primary" id="copySharePost">Copy Facebook Post</button>
+      <button class="btn" id="copyRequestLink">Copy Request Link</button>
+      <button class="btn soft" id="generateShareImage">Generate Share Image</button>
+      <button class="btn hidden" id="nativeShareRequest">Share</button>
+    </div>
+    <div class="share-preview hidden" id="sharePreviewWrap">
+      <canvas id="shareCanvas" width="1080" height="1350"></canvas>
+      <div class="share-actions"><button class="btn primary" id="downloadShareImage">Download Image</button></div>
+    </div>
+    <div class="note">Use the copied post or generated image wherever you want to share the request.</div>
+  </div>
+</div></div>
+
+<div class="modal" id="requestPublishedModal" onclick="IER.bgClose(event,'requestPublishedModal')"><div class="modal-card" style="max-width:520px">
+  <div class="modal-head"><div><h2 style="margin:0">Request published</h2><div class="sub">Your request is now on the board.</div></div><button class="close" onclick="IER.closeModal('requestPublishedModal')">×</button></div>
+  <div class="request-security-box">
+    <small>Request ID</small><b id="publishedRequestId"></b>
+    <p>You can share your request using its public link.</p>
+  </div>
+  <div id="publishedManageWrap" class="request-security-box hidden"><b>Private management link</b><p>Save this link to confirm or correct fulfilment later. Do not share it publicly.</p><button class="btn primary" id="copyManageLink">Copy private link</button></div>
+  <div class="share-actions"><button class="btn primary" id="copyPublishedRequestId">Copy Request ID</button><button class="btn" onclick="IER.closeModal('requestPublishedModal')">Done</button></div>
+</div></div>
+
+<div class="modal" id="fulfillModal" onclick="IER.bgClose(event,'fulfillModal')"><div class="modal-card" style="max-width:520px">
+  <div class="modal-head"><div><h2 style="margin:0">Report fulfilment</h2><div class="sub">A trusted member report leaves the request Open until the requester confirms. Requester confirmation is being upgraded.</div></div><button class="close" onclick="IER.closeModal('fulfillModal')">×</button></div>
+  <input type="hidden" id="fulfillId">
+  <div class="verify-options">
+    <div class="verify-option"><input type="radio" name="fulfillReporterMode" id="fulfillAsRequester" value="requester" checked><label for="fulfillAsRequester">I am the requester</label></div>
+    <div class="verify-option"><input type="radio" name="fulfillReporterMode" id="fulfillAsMember" value="member"><label for="fulfillAsMember">I am an approved community reporter</label></div>
+  </div>
+
+  <div id="fulfillRequesterFields" style="margin-top:14px">
+    <div id="fulfillLinkMode" class="hidden"><p class="note">Use the private link you saved when creating this request.</p></div>
+    <div id="fulfillEmailMode">
+    <div class="form-group"><label>Your request email</label><input class="field" type="email" id="fulfillRequesterEmail" placeholder="name@example.com"></div>
+    <button class="btn" type="button" id="fulfillSendCode" onclick="sendRequesterCode()">Email me a code</button>
+    <div class="form-group"><label>Code from email</label><input class="field" id="fulfillRequesterCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="6-digit code"></div>
+    </div>
+    <div class="form-group"><label>Request status</label><select class="field" id="fulfillRequesterDecision"><option value="confirm">Yes, fulfilment confirmed</option><option value="reject">No, blood is still needed</option></select></div>
+  </div>
+
+  <div id="fulfillMemberFields" class="hidden" style="margin-top:14px">
+    <p class="note">Approved community reporters sign in with their email. Your report does not close this request.</p>
+    <div class="form-group"><label>Why are you reporting fulfilment?</label><select class="field" id="fulfillMemberReason"><option value="confirmed">I confirmed it with the requester</option><option value="donated">I donated for this request</option><option value="requester_told">The requester told me it was fulfilled</option></select></div>
+  </div>
+
+
+  <button class="btn primary full" id="fulfillSubmitBtn" style="margin-top:13px" onclick="confirmFulfilmentReport()">Report fulfilment</button><div class="err" id="fulfillError"></div>
+</div></div>
+
+<script src="js/config.js"></script><script src="js/common.js"></script><script src="js/poster24.js"></script>
+<script src="js/requests.js"></script>
+</body></html>

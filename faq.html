@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="css/style.css">
+<title>FAQ · IER Blood Donor Network</title>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="index.html"><div class="logo">IER</div><div class="brand-copy"><b>IER Blood Donor Network</b><small>Institute of Education and Research · University of Dhaka</small></div></a>
+    <div class="nav-links"><a href="index.html">Home</a><a href="donors.html">Find Donors</a><a href="requests.html">Blood Requests</a><a class="active" href="faq.html">FAQ</a></div>
+    <div class="nav-actions"><button class="btn update-nav" onclick="IER.openLogin()">Update info</button><a class="btn primary" href="register.html">Register</a></div>
+  </div>
+</header>
+<main>
+  <div class="page-intro"><div class="wrap reveal"><span class="eyebrow">Help</span><h1>Frequently asked questions</h1><p>Quick answers about finding donors, updating your profile, blood requests, sharing and privacy.</p><div class="faq-search"><input class="field" id="faqSearch" placeholder="Search help"></div></div></div>
+  <section style="padding-top:8px"><div class="wrap">
+    <div class="faq-categories reveal" id="faqCategories"><button class="faq-cat active" data-cat="all">All</button><button class="faq-cat" data-cat="finding">Finding donors</button><button class="faq-cat" data-cat="profile">My profile</button><button class="faq-cat" data-cat="availability">Availability</button><button class="faq-cat" data-cat="requests">Blood requests</button><button class="faq-cat" data-cat="sharing">Sharing</button><button class="faq-cat" data-cat="privacy">Privacy</button></div>
+    <div class="faq-list reveal" id="faqList"></div>
+    <div class="cta reveal" style="margin-top:18px"><h3>Need more help?</h3><p>If something is not working or you notice incorrect information, you can report it or send feedback by email.</p><div class="support-links"><a href="#" onclick="IER.reportProblem();return false;">Report a problem</a><a href="#" onclick="IER.sendFeedback();return false;">Send feedback</a></div></div>
+  </div></section>
+</main>
+<footer><div class="wrap footer-row"><span>IER Blood Donor Network · Community initiative</span><div class="support-links"><a href="faq.html">FAQ</a><a href="#" onclick="IER.reportProblem();return false;">Report a problem</a><a href="#" onclick="IER.sendFeedback();return false;">Feedback</a></div></div></footer>
+<div class="mobile-dock"><div class="dock-grid"><a href="index.html">Home</a><a href="donors.html">Donors</a><a href="requests.html">Requests</a><a href="faq.html">FAQ</a></div></div>
+<div class="toast" id="globalToast"></div>
+<script src="js/config.js"></script><script src="js/common.js"></script><script src="js/faq.js"></script>
+</body></html>

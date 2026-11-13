@@ -1,0 +1,62 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="css/style.css">
+<title>Find Donors · IER Blood Donor Network</title></head><body>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="index.html"><div class="logo">IER</div><div class="brand-copy"><b>IER Blood Donor Network</b><small>Institute of Education and Research · University of Dhaka</small></div></a>
+    <div class="nav-links">
+      <a class="" href="index.html">Home</a>
+      <a class="active" href="donors.html">Find Donors</a>
+      <a class="" href="requests.html">Blood Requests</a>
+      <a class="" href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-actions"><button class="btn" onclick="IER.showMyContactViews()">My contact views</button>
+      <button class="btn update-nav" onclick="IER.openLogin()">Update info</button>
+      <a class="btn primary" href="register.html">Register</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="page-intro"><div class="wrap reveal"><span class="eyebrow">Full donor directory</span><h1>Find an IER donor</h1><p>Search by blood group, location, availability or stream.</p></div></div>
+  <section style="padding-top:8px"><div class="wrap">
+    <div class="directory reveal">
+      <div class="filters">
+        <input class="field" id="q" placeholder="Search name, stream or location">
+        <select class="field" id="bloodFilter"></select>
+        <select class="field" id="cityFilter"></select>
+        <select class="field" id="areaFilter"></select>
+      </div>
+      <div class="filters secondary">
+        <select class="field" id="availabilityFilter"><option value="">All availability</option><option>Available</option><option>Emergency only</option><option>Temporarily unavailable</option></select>
+        <select class="field" id="streamFilter"><option value="">All streams</option><option>Language Education</option><option>Social Science Education</option><option>Special Education</option><option>Science, Mathematics and Technology Education (SMTE)</option></select>
+        <select class="field" id="freshFilter"><option value="">All freshness</option><option value="confirmed">Recently confirmed</option><option value="stale">Needs confirmation</option></select>
+        <button class="btn soft" id="clearFilters">Clear filters</button>
+      </div>
+      <div class="share-summary"><b id="filterSummary">All donors</b></div>
+      <div class="directory-meta"><b id="resultCount"></b><span id="liveDataStatus">Loading live donor data...</span></div>
+      <div class="donor-grid" id="donorGrid"></div>
+    </div>
+  </div></section>
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <span>IER Blood Donor Network · Community initiative</span>
+    <div class="support-links">
+      <a href="faq.html">FAQ</a>
+      <a href="#" onclick="IER.reportProblem();return false;">Report a problem</a>
+      <a href="#" onclick="IER.sendFeedback();return false;">Feedback</a>
+    </div>
+  </div>
+</footer>
+<div class="mobile-dock"><div class="dock-grid">
+  <a href="index.html">Home</a><a href="donors.html">Donors</a><a href="requests.html">Requests</a><a href="faq.html">FAQ</a>
+</div></div>
+<div class="toast" id="globalToast"></div>
+
+<script src="js/config.js"></script><script src="js/common.js"></script><script src="js/donors.js"></script>
+</body></html>

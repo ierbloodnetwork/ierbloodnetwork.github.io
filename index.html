@@ -1,0 +1,85 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="css/style.css">
+<title>IER Blood Donor Network</title></head><body>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="index.html"><div class="logo">IER</div><div class="brand-copy"><b>IER Blood Donor Network</b><small>Institute of Education and Research · University of Dhaka</small></div></a>
+    <div class="nav-links">
+      <a class="active" href="index.html">Home</a>
+      <a class="" href="donors.html">Find Donors</a>
+      <a class="" href="requests.html">Blood Requests</a>
+      <a class="" href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-actions"><button class="btn" onclick="IER.showMyContactViews()">My contact views</button>
+      <button class="btn update-nav" onclick="IER.openLogin()">Update info</button>
+      <a class="btn primary" href="register.html">Register</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="hero"><div class="wrap hero-grid">
+    <div class="reveal">
+      <span class="eyebrow">IER community initiative</span>
+      <h1>Find blood donors within IER</h1>
+      <p>Search by blood group and location, or post a blood request when you need one.</p>
+      <div class="hero-actions"><a class="btn red" href="requests.html#open">Request Blood</a><a class="btn soft" href="donors.html">Browse all donors</a></div>
+    </div>
+    <div class="hero-panel reveal">
+      <div class="small-label">Quick donor search</div><h2>What blood group do you need?</h2>
+      <div class="blood-selector" id="homeBlood"></div>
+      <div class="fields">
+        <select class="field" id="homeArea"></select>
+        <select class="field" id="homeAvail"><option value="">Any availability</option><option>Available</option><option>Emergency only</option></select>
+        <button class="btn red wide" id="homeSearch">Find donors</button>
+      </div>
+    </div>
+  </div></div>
+
+  <div class="wrap stats reveal">
+    <div class="stat"><strong id="hTotal">0</strong><span>Registered donors</span></div>
+    <div class="stat"><strong id="hAvailable">0</strong><span>Confirmed available</span></div>
+    <div class="stat"><strong id="hRequests">0</strong><span>Active requests</span></div>
+    <div class="stat"><strong id="hAreas">0</strong><span>Locations represented</span></div>
+  </div>
+
+  <section><div class="wrap reveal">
+    <div class="request-callout"><div><h3>Active Blood Requests</h3><p>See current requests or post a new one.</p></div><a class="btn red" href="requests.html#open">Open Blood Request</a></div>
+  </div></section>
+
+  <section style="padding-top:0"><div class="wrap reveal">
+    <div class="section-head"><div><h2>Urgent and upcoming requests</h2><p>Open requests are prioritized by urgency and needed time.</p></div><a class="link-btn" href="requests.html">View all requests</a></div>
+    <div class="request-grid" id="homeRequests"></div>
+  </div></section>
+
+  <section><div class="wrap reveal">
+    <div class="section-head"><div><h2>Browse by blood group</h2><p>See donors by blood group and current status.</p></div></div>
+    <div class="groups" id="homeGroups"></div>
+  </div></section>
+
+  <section><div class="wrap cta-grid reveal">
+    <div class="cta dark"><h3>Join the donor network</h3><p>Register directly through the website and choose how people may contact you.</p><a class="btn" href="register.html">Register as donor</a></div>
+    <div class="cta"><h3>Already registered?</h3><p>Keep your availability and contact information up to date.</p><button class="btn primary" onclick="IER.openLogin()">Update my information</button></div>
+  </div></section>
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <span>IER Blood Donor Network · Community initiative</span>
+    <div class="support-links">
+      <a href="faq.html">FAQ</a>
+      <a href="#" onclick="IER.reportProblem();return false;">Report a problem</a>
+      <a href="#" onclick="IER.sendFeedback();return false;">Feedback</a>
+    </div>
+  </div>
+</footer>
+<div class="mobile-dock"><div class="dock-grid">
+  <a href="index.html">Home</a><a href="donors.html">Donors</a><a href="requests.html">Requests</a><a href="faq.html">FAQ</a>
+</div></div>
+<div class="toast" id="globalToast"></div>
+
+<script src="js/config.js"></script><script src="js/common.js"></script><script src="js/home.js"></script>
+</body></html>
