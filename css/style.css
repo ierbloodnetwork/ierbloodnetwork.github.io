@@ -682,3 +682,6 @@ a,.btn,.blood-btn,.group-card{touch-action:manipulation}
   .blood-btn{font-size:16px}
 }
 @media(prefers-reduced-motion:reduce){.btn:active,.blood-btn:active{transform:none}}
+
+/* v31: show member sign-in errors instead of silently hiding them. */
+#memberAuthError:not(:empty){display:block}
