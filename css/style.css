@@ -685,3 +685,6 @@ a,.btn,.blood-btn,.group-card{touch-action:manipulation}
 
 /* v31: show member sign-in errors instead of silently hiding them. */
 #memberAuthError:not(:empty){display:block}
+
+/* v32: keep the sign-in challenge compact and visible when enabled. */
+#memberSigninTurnstile:not(.hidden){margin:10px 0}

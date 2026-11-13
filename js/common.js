@@ -66,16 +66,43 @@ const IER = (() => {
     const response=await fetch(url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action,data,clientId:clientId()}),redirect:"follow"});
     const text=await response.text();let result;try{result=JSON.parse(text)}catch(e){throw new Error("Unreadable server response.")};return result;
   }
+  const REMEMBERED_SESSION_KEY="ier_member_session_v32";
+  const REMEMBER_DAYS=30;
   let memberSessionToken="";
   let currentMember=null;
-  // Per-tab storage survives navigation between standalone HTML pages.
-  try {const saved=JSON.parse(sessionStorage.getItem("ier_member_session")||"null");
-    if(saved && /^[a-f0-9]{64}$/i.test(saved.token||"")){
-      memberSessionToken=saved.token;currentMember=saved.member||null;
-    }
+  // GitHub Pages and Apps Script have different origins. An HttpOnly session cookie
+  // is not available with this deployment architecture. A same-origin stored
+  // bearer token is a tradeoff; all protected actions still authenticate server-side.
+  try {
+    const saved=JSON.parse(localStorage.getItem(REMEMBERED_SESSION_KEY)||"null");
+    if(saved && /^[a-f0-9]{64}$/i.test(saved.token||"") && Number(saved.expiresAt)>Date.now()) {
+      memberSessionToken=saved.token;
+      // Ignore stale browser identity until the backend validates the token.
+    } else localStorage.removeItem(REMEMBERED_SESSION_KEY);
   }catch(ignored){}
-  function saveMemberSession(){try{sessionStorage.setItem("ier_member_session",JSON.stringify({token:memberSessionToken,member:currentMember}));}catch(ignored){}updateAccountUI();}
-  function clearMemberSession(){memberSessionToken="";currentMember=null;try{sessionStorage.removeItem("ier_member_session")}catch(ignored){}updateAccountUI();}
+  function saveMemberSession(expiresAt){
+    const absolute=Date.parse(expiresAt||"")||Date.now()+REMEMBER_DAYS*86400000;
+    try{localStorage.setItem(REMEMBERED_SESSION_KEY,JSON.stringify({token:memberSessionToken,expiresAt:absolute}));}catch(ignored){}
+    try{sessionStorage.removeItem("ier_member_session")}catch(ignored){}
+    updateAccountUI();
+  }
+  function clearMemberSession(){
+    memberSessionToken="";currentMember=null;
+    try{localStorage.removeItem(REMEMBERED_SESSION_KEY);sessionStorage.removeItem("ier_member_session")}catch(ignored){}
+    updateAccountUI();
+  }
+  async function restoreRememberedSession(){
+    if(!memberSessionToken)return;
+    try {
+      const result=await apiPost("getMyMemberProfile",{sessionToken:memberSessionToken});
+      if(result&&result.ok&&result.member){currentMember=result.member;updateAccountUI();}
+      else clearMemberSession();
+    }catch(e){
+      // Network failure is not proof of revocation. Leave the saved token for
+      // validation on the next visit, but never claim a verified session now.
+      currentMember=null;updateAccountUI();
+    }
+  }
   function handleMemberAuthFailure(result,retry){
     if(result && !result.ok && /sign in|session|expired|not authenticated/i.test(result.message||"")){
       clearMemberSession();showMemberModal(retry);return true;
@@ -118,8 +145,13 @@ const IER = (() => {
       overlay.querySelector("#accountHistoryBtn").addEventListener("click",()=>{
         closeModal("accountPanelModal");showMyContactViews()
       });
-      overlay.querySelector("#accountLogoutBtn").addEventListener("click",()=>{
-        closeModal("accountPanelModal");clearMemberSession();showToast("Signed out.")
+      overlay.querySelector("#accountLogoutBtn").addEventListener("click",async ()=>{
+        closeModal("accountPanelModal");
+        const tokenToRevoke=memberSessionToken;
+        if(!tokenToRevoke)return;
+        const result=await apiPost("memberLogout",{sessionToken:tokenToRevoke}).catch(()=>null);
+        if(!result||!result.ok){showToast("Could not sign out securely. Check your connection and try again.");return;}
+        clearMemberSession();showToast("Signed out.")
       });
     }
     const signedIn=Boolean(memberSessionToken&&currentMember);
@@ -146,6 +178,7 @@ const IER = (() => {
     const reg=document.getElementById("memberUnknownAccount");if(reg)reg.classList.add("hidden");
     setMemberAuthMode("signin");
     openModal("memberAuthModal");
+    initTurnstile("memberSigninTurnstile","member_signin").catch(()=>memberAuthError("Verification challenge could not load."));
   }
   function setMemberAuthMode(mode){
     // Account sign-in is email-only. All new registrations use register.html.
@@ -177,8 +210,16 @@ const IER = (() => {
     button.disabled=true;button.textContent="Sending code...";
     try{
       // Crucial: do not send profile fields or registration:true from sign-in.
-      const result=await apiPost("requestMemberEmailCode",{email,registration:false});
+      if(turnstileEnabled()&&!getTurnstileToken("memberSigninTurnstile")){
+        memberAuthError("Complete the verification challenge before requesting a code.");return;
+      }
+      const result=await apiPost("requestMemberEmailCode",{email,registration:false,turnstileToken:getTurnstileToken("memberSigninTurnstile")});
       if(!result.ok){
+        if(result.code==="RESEND_WAIT"){
+          const codeSection=document.getElementById("memberEmailCodeSection");
+          if(!codeSection.classList.contains("hidden"))
+            document.getElementById("memberCodeStatus").textContent="Your earlier code may still be valid. Check your inbox.";
+        }
         memberAuthError(result.message==="Invalid action."
           ?"Sign-in is not available on this backend. Please contact the network team."
           :(result.message||"Could not send the code. Try again."));
@@ -190,7 +231,7 @@ const IER = (() => {
       document.getElementById("memberCodeStatus").textContent="Code sent. Check your inbox.";
       button.textContent="Resend code";
     }catch(e){memberAuthError("Unable to send code. Check your connection and try again.");}
-    finally{button.disabled=false;if(button.textContent==="Sending code...")button.textContent="Email me a code";}
+    finally{resetTurnstile("memberSigninTurnstile");button.disabled=false;if(button.textContent==="Sending code...")button.textContent="Email me a code";}
   }
   async function confirmMemberCode(){
     const email=document.getElementById("memberEmail").value.trim().toLowerCase();
@@ -223,7 +264,7 @@ const IER = (() => {
     if (!result || !result.ok || !/^[a-f0-9]{64}$/i.test(String(result.sessionToken||""))) return false;
     memberSessionToken=result.sessionToken;
     currentMember=result.member;
-    saveMemberSession();
+    saveMemberSession(result.sessionExpiresAt);
     return true;
   }
   function escapeHtml(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]))}
@@ -587,6 +628,7 @@ Please describe the issue below:
       <div class="modal" id="memberAuthModal" onclick="IER.bgClose(event,'memberAuthModal')"><div class="modal-card" style="max-width:510px">
         <div class="modal-head"><h2 id="memberAuthHeading">Sign in</h2><button type="button" class="close" aria-label="Close sign-in" onclick="IER.closeModal('memberAuthModal')">×</button></div>
         <div class="form-group"><label for="memberEmail">Email address</label><input class="field" id="memberEmail" type="email" placeholder="name@example.com" autocomplete="email" inputmode="email"></div>
+        <div class="turnstile-slot hidden" id="memberSigninTurnstile"></div>
         <button type="button" class="btn primary full" id="memberRequestCodeBtn" onclick="IER.requestMemberCode()">Email me a code</button>
         <div id="memberEmailCodeSection" class="hidden" aria-live="polite"><p class="member-code-status" id="memberCodeStatus" role="status"></p><div class="form-group"><label for="memberCode">Six-digit email code</label><input id="memberCode" class="field" type="text" inputmode="numeric" pattern="[0-9]{6}" autocomplete="one-time-code" maxlength="6" placeholder="000000"></div><button type="button" class="btn primary full" id="memberConfirmCodeBtn" onclick="IER.confirmMemberCode()">Verify and continue</button></div>
         <div class="err" id="memberAuthError" role="alert"></div>
@@ -950,13 +992,13 @@ Please describe the issue below:
     donors:()=>donors,requests:()=>requests,realDonors:()=>realDonors,realRequests:()=>realRequests,useDemoDonors,useDemoRequests,realOpenRequestCount,reloadPublicData,publicState:()=>publicState,apiPost,
     persist,resetDemo,addDonor,findDuplicateDonor,batchLabel,isValidPhone,isConfirmed,effectiveAvailability,availabilitySource,communityExpiryText,freshnessText,locationText,donationText,
     requestStatus,requestFulfilmentReasonLabel,formatDateTime,timeAgo,countdown,normPhone,communityReasonLabel,friendlyDateTime,showToast,openModal,closeModal,bgClose,shareText,copyText,copyCurrentUrl,setupReveal,animateNumber,query,navigateDonors,
-    reportProblem,sendFeedback,reportDonorInfo,reportBloodRequest,escapeHtml,escapeAttr,safeFacebookUrl,turnstileEnabled,initTurnstile,getTurnstileToken,resetTurnstile,injectSharedModals,openLogin,verifyDonor,saveDonor,openDonorDetail,revealDonorContact,showMemberModal,setMemberAuthMode,requestMemberCode,confirmMemberCode,acceptVerifiedMember,showMyContactViews,openAccountPanel,openCommunityVerify,saveCommunityAvailability,reportTrustedMemberFulfilment,getVerifiedRequesterContact
+    reportProblem,sendFeedback,reportDonorInfo,reportBloodRequest,escapeHtml,escapeAttr,safeFacebookUrl,turnstileEnabled,initTurnstile,getTurnstileToken,resetTurnstile,injectSharedModals,openLogin,verifyDonor,saveDonor,openDonorDetail,revealDonorContact,showMemberModal,setMemberAuthMode,requestMemberCode,confirmMemberCode,acceptVerifiedMember,showMyContactViews,openAccountPanel,restoreRememberedSession,openCommunityVerify,saveCommunityAvailability,reportTrustedMemberFulfilment,getVerifiedRequesterContact
   };
 })();
 
 document.addEventListener("DOMContentLoaded",()=>{
   IER.injectSharedModals();
-  document.body.classList.toggle("is-member-signed-in",Boolean(sessionStorage.getItem("ier_member_session")));
+  IER.restoreRememberedSession();
   IER.setupReveal();
   IER.reloadPublicData();
 });
