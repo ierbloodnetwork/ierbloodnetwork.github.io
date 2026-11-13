@@ -482,3 +482,97 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 #memberAuthModal .modal-card{max-width:460px}
 /* Toast messages are informational only and must never block form controls. */
 .toast{pointer-events:none}
+
+/* ===== v28 mobile-first fix (320-430px). Final overrides; keep at end of file. ===== */
+.mobile-dock svg,.dock-grid svg{width:22px;height:22px;max-width:22px;max-height:22px;flex:none;fill:none;stroke:currentColor}
+.mobile-dock .dock-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-auto-flow:column;grid-template-rows:auto;gap:2px;margin:0;padding:0}
+.mobile-dock .dock-grid>a,.mobile-dock .dock-grid>button{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  min-width:0;min-height:52px;padding:5px 2px;border:0;border-radius:12px;background:transparent;
+  font:inherit;font-size:11px;font-weight:800;line-height:1.1;color:var(--du);white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.mobile-dock .dock-grid>a>span,.mobile-dock .dock-grid>button>span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.mobile-dock .dock-grid .dock-request{background:var(--red);color:#fff}
+.mobile-dock .dock-grid [aria-current="page"]{background:var(--du-soft)}
+.mobile-dock .dock-grid .dock-request[aria-current="page"]{background:var(--red)}
+.mobile-dock .dock-account{color:var(--du)}
+
+@media(max-width:650px){
+  html,body{overflow-x:hidden}
+  body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+  .mobile-dock{display:block!important;position:fixed;left:0;right:0;bottom:0;top:auto;z-index:60;
+    padding:5px 6px calc(5px + env(safe-area-inset-bottom));background:rgba(255,255,255,.98);border-top:1px solid var(--line);box-shadow:0 -4px 18px rgba(0,0,0,.07)}
+  .toast{bottom:calc(76px + env(safe-area-inset-bottom));max-width:92vw;text-align:center}
+
+  /* header: compact, single row */
+  .nav{min-height:56px;gap:8px;flex-wrap:nowrap}
+  .logo{width:36px;height:36px;border-radius:11px;font-size:13px}
+  .brand{flex:1;min-width:0;gap:9px}
+  .brand-copy{min-width:0}
+  .brand-copy b{font-size:14px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nav-actions{flex:none}
+  .nav-actions .btn{min-height:40px;padding:8px 13px;font-size:13px}
+
+  /* spacing + less explanatory text */
+  .wrap{padding:0 12px}
+  section{padding:12px 0}
+  .hero{padding:12px 0 4px}
+  .hero-grid{gap:12px}
+  .hero-panel{padding:14px;border-radius:18px}
+  .hero-panel h2{font-size:18px;margin:3px 0 10px}
+  .hero .eyebrow,.hero>.wrap>.reveal>p,.hero-actions .btn.soft,.page-intro p:not(.keep),.section-head p,.request-callout p,.page-intro .eyebrow{display:none}
+  .faq-search{display:block}
+  .hero-actions{margin-top:10px}
+  .hero-actions .btn{width:100%}
+  .hero h1{font-size:26px;line-height:1.12;margin:0 0 8px}
+  .page-intro{padding:16px 0 4px}
+  .page-intro h1{font-size:26px;margin:0}
+  .page-actions{margin-top:10px}
+  .page-actions .btn{width:100%}
+  .section-head h2{font-size:20px}
+  .section-head{margin-bottom:10px}
+  .stats{gap:8px;padding:8px 0 0}
+  .stat{padding:12px;border-radius:14px}.stat strong{font-size:22px}
+  .request-callout{padding:14px;border-radius:16px;gap:10px}
+  .request-callout .btn{width:100%}
+  .cta{padding:16px}
+
+  /* quick search: 4x2 blood grid, comfortable taps */
+  .blood-selector{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .blood-btn{min-height:48px;padding:10px 2px;font-size:16px;border-radius:12px}
+  .fields{grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .fields .field{min-width:0}
+  .fields .wide{grid-column:1/-1}
+
+  /* forms and filters */
+  .field,input.field,select.field,textarea.field{min-height:44px;font-size:16px;padding:10px 12px}
+  .filters,.filters.secondary{grid-template-columns:1fr 1fr;gap:8px}
+  .filters>input.field{grid-column:1/-1}
+  .directory,.request-board{padding:12px;border-radius:18px}
+  .directory-meta{flex-direction:row;align-items:center;padding:10px 2px;flex-wrap:wrap}
+  .share-summary{padding:8px 10px;margin-bottom:8px}
+  .donor-grid,.request-grid,.groups{grid-template-columns:1fr;gap:10px}
+  .groups{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .donor-card{min-width:0;padding:13px;gap:10px}
+  .donor-card>*{min-width:0}
+  .blood-badge{width:48px;height:48px;font-size:16px;border-radius:13px}
+  .request-card{padding:14px}
+  .request-card .card-actions .btn{min-height:44px}
+  .form-section{padding:14px;border-radius:16px}
+  .form-grid,.detail-grid,.contact-actions,.share-actions,.success-actions,.cta-grid{grid-template-columns:1fr}
+  .detail-grid{grid-template-columns:1fr 1fr}
+
+  /* modals: bottom sheets within the viewport */
+  .modal{padding:0;align-items:flex-end}
+  .modal-card{width:100%;max-width:100%!important;max-height:calc(100dvh - 8px);border-radius:18px 18px 0 0;padding:14px 14px calc(18px + env(safe-area-inset-bottom))}
+  .modal-head{position:sticky;top:-14px;z-index:2;background:#fff;padding:6px 0 8px}
+  .close{min-width:44px;min-height:44px}
+  .modal .btn,.modal .link-btn{min-height:44px}
+  .share-preview canvas{max-width:100%}
+}
+@media(max-width:360px){
+  .brand-copy b{font-size:13px}
+  .mobile-dock .dock-grid>a,.mobile-dock .dock-grid>button{font-size:10px;padding:5px 0}
+  .detail-grid{grid-template-columns:1fr}
+  .blood-btn{font-size:15px}
+}
