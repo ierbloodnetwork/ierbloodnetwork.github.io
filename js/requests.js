@@ -142,6 +142,12 @@ document.addEventListener("DOMContentLoaded",()=>{
         document.getElementById("copyManageLink").onclick=()=>IER.copyText(manageLink.href,"Private link copied. Save it somewhere safe.");
         try{sessionStorage.setItem("ier_request_manage_"+result.requestId,result.managementToken)}catch(e){}
       }
+      const publicLink=location.protocol==="file:"?"":new URL("requests.html?id="+encodeURIComponent(result.requestId),location.href).href;
+      document.getElementById("copyPublishedLink").onclick=()=>publicLink?IER.copyText(publicLink,"Request link copied."):IER.showToast("The link is available after website publication.");
+      document.getElementById("sharePublishedRequest").onclick=()=>{
+        if(IER.requests().some(x=>x.id===result.requestId)){IER.closeModal("requestPublishedModal");window.openRequestDetail(result.requestId);}
+        else IER.showToast("Still loading. Open the request from the board to share it.");
+      };
       document.getElementById("publishedRequestId").textContent=result.requestId;
       document.getElementById("copyPublishedRequestId").onclick=()=>IER.copyText(result.requestId,"Request ID copied.");
       IER.openModal("requestPublishedModal");
@@ -172,7 +178,7 @@ document.addEventListener("DOMContentLoaded",()=>{
       document.getElementById("revealRequesterContact").onclick=()=>{
         requesterContact.innerHTML='<button class="btn" disabled>Verify member to view contact...</button>';
         IER.getVerifiedRequesterContact(r.id,phone=>{
-          requesterContact.innerHTML=`<a class="btn red" href="tel:${IER.escapeAttr(phone)}">Call requester</a><a class="btn" target="_blank" rel="noopener" href="https://wa.me/88${IER.escapeAttr(phone)}">WhatsApp</a>`;
+          requesterContact.innerHTML=`<a class="btn red" href="tel:${IER.escapeAttr(phone)}">Call requester</a><a class="btn" target="_blank" rel="noopener" href="https://wa.me/88${IER.escapeAttr(phone)}">Try WhatsApp</a>`;
         });
       };
     }

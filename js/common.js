@@ -601,7 +601,7 @@ Please describe the issue below:
     try{document.execCommand("copy");showToast(success)}catch(e){showToast("Copy this text manually.")}
     ta.remove();
   }
-  function copyCurrentUrl(){copyText(location.href,"Link copied.")}
+  function copyCurrentUrl(){const u=new URL(location.href);u.hash="";u.searchParams.delete("id");copyText(u.href,"Board link copied.")}
   function setupReveal(){
     const els=[...document.querySelectorAll(".reveal")];
     if(!("IntersectionObserver" in window)){els.forEach(x=>x.classList.add("visible"));return}
@@ -903,7 +903,7 @@ Please describe the issue below:
       else{
         let html="";
         if(d.route==="facebook"||d.route==="both")html+='<button class="btn" id="viewDonorFacebookBtn">Facebook</button>';
-        if(d.route==="direct"||d.route==="both")html+='<button class="btn primary" id="revealDonorPhoneBtn">Phone / WhatsApp</button>';
+        if(d.route==="direct"||d.route==="both")html+='<button class="btn primary" id="revealDonorPhoneBtn">Show phone number</button>';
         contact.innerHTML=html||'<button class="btn" disabled>Contact unavailable</button>';
         const ph=document.getElementById("revealDonorPhoneBtn"),fb=document.getElementById("viewDonorFacebookBtn");
         if(ph)ph.onclick=()=>revealDonorContact(d.id,"phone");
@@ -928,9 +928,9 @@ Please describe the issue below:
         contact.innerHTML=`<a class="btn primary full" href="${escapeAttr(url)}" target="_blank" rel="noopener">Open Facebook profile</a>`;
       }else{
         const phone=normPhone(String(result.phone||""));if(!isValidPhone(phone))throw new Error("Invalid phone");
-        contact.innerHTML=`<a class="btn primary" href="tel:${escapeAttr(phone)}">Call</a><a class="btn" target="_blank" rel="noopener" href="https://wa.me/88${escapeAttr(phone)}">WhatsApp</a>`;
+        contact.innerHTML=`<a class="btn primary" href="tel:${escapeAttr(phone)}">Call</a><a class="btn" target="_blank" rel="noopener" href="https://wa.me/88${escapeAttr(phone)}">Try WhatsApp</a>`;
       }
-      note.textContent="Your contact-viewing activity has been recorded and is visible to this donor.";
+      note.textContent="Your contact-viewing activity has been recorded and is visible to this donor."+(method==="facebook"?"":" WhatsApp works only if the donor uses it on this number.");
     }catch(e){contact.innerHTML='<button class="btn" disabled>Contact unavailable</button>';note.textContent="Please try again."}
   }
 

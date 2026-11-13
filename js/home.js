@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 
     const active=requests.filter(r=>IER.requestStatus(r)==="Open")
       .sort((a,b)=>(a.isDemo?1:0)-(b.isDemo?1:0)||(a.urgent===b.urgent?new Date(a.needed)-new Date(b.needed):(a.urgent?-1:1))).slice(0,4);
-    document.getElementById("homeRequests").innerHTML=active.map((r,i)=>`
+    document.getElementById("homeRequests").innerHTML=!active.length?'<div class="empty"><b>No open requests right now</b></div>':active.map((r,i)=>`
       <article class="request-card ${r.urgent?"urgent":""} stagger-in" style="animation-delay:${i*45}ms">
         <div class="request-top"><div class="request-blood">${IER.escapeHtml(r.blood)}</div><div>${r.isDemo?'<span class="sample-badge">Sample</span> ':''}<span class="status-pill open">Open</span></div></div>
         <div class="request-title">${r.units?`${IER.escapeHtml(r.units)} unit${Number(r.units)===1?"":"s"} · `:""}${IER.escapeHtml(r.hospital)}</div>
@@ -40,12 +40,12 @@ document.addEventListener("DOMContentLoaded",()=>{
       </article>`).join("");
 
     const groupWrap=document.getElementById("homeGroups");
-    groupWrap.innerHTML=IER.GROUPS.map(g=>{
+    if(groupWrap){groupWrap.innerHTML=IER.GROUPS.map(g=>{
       const all=realDonors.filter(d=>d.blood===g),available=all.filter(d=>IER.effectiveAvailability(d)==="Available").length;
       const pct=all.length?Math.round(available/all.length*100):0;
       return `<div class="group-card" data-g="${g}"><div class="group-name">${g}</div><b>${all.length} donor${all.length===1?"":"s"}</b><small>${available} confirmed available</small><div class="mini-bar"><span style="width:${pct}%"></span></div></div>`;
     }).join("");
-    groupWrap.querySelectorAll(".group-card").forEach(x=>x.onclick=()=>IER.navigateDonors({blood:x.dataset.g}));
+    groupWrap.querySelectorAll(".group-card").forEach(x=>x.onclick=()=>IER.navigateDonors({blood:x.dataset.g}));}
   }
   renderHome();
   window.addEventListener("ierDataChanged",renderHome);

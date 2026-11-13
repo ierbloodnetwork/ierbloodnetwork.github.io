@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 
   blood.value=q.get("blood")||"";city.value=q.get("city")||"";areaOptions();area.value=q.get("area")||"";
   availability.value=q.get("availability")||"";stream.value=q.get("stream")||"";fresh.value=q.get("freshness")||"";text.value=q.get("q")||"";
+  const more=document.getElementById("moreFilters");if(more&&(city.value||stream.value||fresh.value))more.open=true;
 
   const PAGE_SIZE=40;
   let visibleCount=PAGE_SIZE;
@@ -59,7 +60,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 
     const grid=document.getElementById("donorGrid");
     if(!list.length){
-      grid.innerHTML='<div class="empty"><b>No matching donor found</b><p>Try removing the area or availability filter. You can also open a blood request if you still cannot find a suitable donor.</p><div class="card-actions"><button class="btn" id="broadenSearchBtn">Broaden search</button><a class="btn red" href="requests.html#open">Open Blood Request</a></div></div>';
+      grid.innerHTML='<div class="empty"><b>No matching donor found</b><p>Try removing the area or availability filter, or post a blood request.</p><div class="card-actions"><button class="btn" id="broadenSearchBtn">Broaden search</button><a class="btn outline-red" href="requests.html#open">Post a blood request</a></div></div>';
       document.getElementById("broadenSearchBtn").onclick=()=>{area.value="";availability.value="";render()};
       return;
     }
