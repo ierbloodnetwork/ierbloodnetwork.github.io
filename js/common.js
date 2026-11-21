@@ -49,8 +49,8 @@ const IER = (() => {
   }
   function realOpenRequestCount(){return realRequests.filter(r=>requestStatus(r)==="Open").length}
   function canUseSamples(){return publicState!=="loading"||hasCachedPublicData}
-  function useDemoDonors(){return canUseSamples()&&realDonors.length<20}
-  function useDemoRequests(){return canUseSamples()&&realOpenRequestCount()<2}
+  function useDemoDonors(){return false} // v34: public site shows real donors only
+  function useDemoRequests(){return false} // v34: public site shows real requests only
   function refreshCombinedData(){donors=[...realDonors,...(useDemoDonors()?demoDonors:[])];requests=[...realRequests,...(useDemoRequests()?demoRequests:[])]}
 
   function apiUrl(){return (window.IER_CONFIG&&window.IER_CONFIG.API_URL)||""}
@@ -726,7 +726,7 @@ Please describe the issue below:
             <div class="form-group"><label>Phone number</label><input class="field" id="editPhone"></div>
             <div class="form-group"><label>Public contact route</label><select class="field" id="editRoute"><option value="direct">Phone / WhatsApp</option><option value="facebook">Facebook</option><option value="both">Both</option></select></div>
             <div class="form-group" id="editFacebookWrap"><label>Facebook profile link</label><input class="field" id="editFacebook"></div>
-            <div class="form-group"><label>Receive matching blood request emails?</label><select class="field" id="editAlerts"><option value="yes">Yes</option><option value="no">No</option></select><small class="field-help">Emails are sent only for matching blood group and district when your current availability qualifies.</small></div>
+            <div class="form-group"><label>Receive matching blood request emails?</label><select class="field" id="editAlerts"><option value="yes">Yes</option><option value="no">No</option></select><small class="field-help">Eligible matching donors may receive emails after request review. Emergency only donors are notified only when blood is needed within 24 hours. You can opt out here.</small></div>
           </div></div>
           <div style="display:flex;gap:8px;margin-top:17px"><button class="btn" style="flex:1" onclick="IER.closeModal('editorModal')">Cancel</button><button class="btn primary" style="flex:1" onclick="IER.saveDonor()">Save & reconfirm</button></div>
           <div class="ok" id="editOk">Profile updated and reconfirmed.</div>
